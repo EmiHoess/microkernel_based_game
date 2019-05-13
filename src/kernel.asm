@@ -92,7 +92,7 @@ start:
 	; inicializar el scheduler
 
 	; inicializar la IDT
-
+	lidt [IDT_DESC]
 	; configurar controlador de interrupciones
 
 	; cargo la primer tarea null
