@@ -19,6 +19,8 @@ extern idt_inicializar
 extern resetear_pic
 extern habilitar_pic
 
+;;MMU
+extern mmu_init_page_and_table_directory
 
 ;; Saltear seccion de datos
 jmp start
@@ -31,6 +33,9 @@ iniciando_mr_len equ	$ - iniciando_mr_msg
 
 iniciando_mp_msg db		'Iniciando kernel (Modo Protegido)...'
 iniciando_mp_len equ	$ - iniciando_mp_msg
+
+welcome_msg db		'Hello!'
+welcome_msg_len equ		$ - welcome_msg
 
 ;;
 ;; Seccion de código.
@@ -74,14 +79,25 @@ start:
 	mov EBP, 0x20000
 	mov ESP, 0x20000
 	; pintar pantalla, todos los colores, que bonito!
-
+	mov ecx, 0x7FFF
+	set_zeros:
+		mov byte [fs:ecx], 0
+		loop set_zeros
+	imprimir_texto_mp welcome_msg, welcome_msg_len, 0x06, 0, 0
 	; inicializar el manejador de memoria
 
 	; inicializar el directorio de paginas
-
+	call mmu_init_page_and_table_directory
 	; inicializar memoria de tareas
 
 	; habilitar paginacion
+	mov eax, 0x00021000 ; 
+	mov cr3, eax
+	mov eax, cr0
+	or eax, 0x80000000 ; 
+	mov cr0, eax
+
+	imprimir_texto_mp bienvenida_msg, bienvenida_len, 0x06, 0, 0
 
 	; inicializar tarea idle
 
@@ -92,7 +108,9 @@ start:
 	; inicializar el scheduler
 
 	; inicializar la IDT
+	call idt_inicializar
 	lidt [IDT_DESC]
+	
 	; configurar controlador de interrupciones
 
 	; cargo la primer tarea null
