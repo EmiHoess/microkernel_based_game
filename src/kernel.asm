@@ -47,25 +47,32 @@ start:
 
 	xchg bx, bx
 
-	; habilitar A20
+	; enable A20 line
 	call habilitar_A20
 
-	; cargar la GDT
+	; load GDT
 
 	lgdt [GDT_DESC]
-	; setear el bit PE del registro CR0
+	; set PE bit from CR0
 	xchg bx, bx
 	mov eax, cr0
 	or eax, 1
 	mov cr0, eax
-	; pasar a modo protegido
+	; protected mode on
 	jmp 0x8:modo_protegido
 	BITS 32
 	modo_protegido:
-	; acomodar los segmentos
-
-	; seteo la pila
-
+	; sort segments
+	mov ax, 32
+	mov ss, ax 
+	mov ds, ax
+	mov es, ax
+	mov gs, ax
+	mov ax, 56
+	mov fs, ax
+	; set stack
+	mov EBP, 0x20000
+	mov ESP, 0x20000
 	; pintar pantalla, todos los colores, que bonito!
 
 	; inicializar el manejador de memoria
