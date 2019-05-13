@@ -47,8 +47,8 @@ start:
 
 	xchg bx, bx
 
-
 	; habilitar A20
+	call habilitar_A20
 
 	; dehsabilitar las interrupciones
 

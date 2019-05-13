@@ -26,6 +26,22 @@ gdt_entry gdt[GDT_COUNT] = {
 		(unsigned char)		0x00,			/* g            */
 		(unsigned char)		0x00,			/* base[31:24]  */
 	},
+
+	[1] = {
+		.limit_0_15  = 0xFFFF,
+		.base_0_15   = 0,
+		.base_23_16  = 0,
+		.type        = ,
+		.s           = ,
+		.dpl         = ,
+		.p           = 1,
+		.limit_16_19 = 0x7,
+		.avl         = 0,
+		.l           = ,
+		.db          = 1,
+		.g           = 1,
+		.base_31_24  = 0,
+	}
 };
 
 gdt_descriptor GDT_DESC = {
