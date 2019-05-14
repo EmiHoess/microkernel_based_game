@@ -8,9 +8,9 @@
 #ifndef __PIC_H__
 #define __PIC_H__
 
-void resetear_pic(void);
-void habilitar_pic();
-void deshabilitar_pic();
+void reset_pic(void);
+void enable_pic();
+void disable_pic();
 
 static __inline __attribute__((always_inline)) void outb(int port, unsigned char data);
 

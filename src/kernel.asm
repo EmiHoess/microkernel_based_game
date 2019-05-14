@@ -16,8 +16,9 @@ extern IDT_DESC
 extern idt_inicializar
 
 ;; PIC
-extern resetear_pic
-extern habilitar_pic
+extern disable_pic
+extern reset_pic
+extern enable_pic
 
 ;;MMU
 extern mmu_init_page_and_table_directory
@@ -59,14 +60,13 @@ start:
 
 	lgdt [GDT_DESC]
 	; set PE bit from CR0
-	xchg bx, bx
 	mov eax, cr0
 	or eax, 1
 	mov cr0, eax
 	; protected mode on
-	jmp 0x8:modo_protegido
+	jmp 0x8:protected_mode
 	BITS 32
-	modo_protegido:
+protected_mode:
 	; sort segments
 	mov ax, 32
 	mov ss, ax 
@@ -78,7 +78,7 @@ start:
 	; set stack
 	mov EBP, 0x20000
 	mov ESP, 0x20000
-	; pintar pantalla, todos los colores, que bonito!
+	
 	mov ecx, 0x7FFF
 	set_zeros:
 		mov byte [fs:ecx], 0
@@ -89,7 +89,8 @@ start:
 	; inicializar el directorio de paginas
 	call mmu_init_page_and_table_directory
 	; inicializar memoria de tareas
-
+	call mmu_inicializar
+	
 	; habilitar paginacion
 	mov eax, 0x00021000 ; 
 	mov cr3, eax
@@ -112,7 +113,10 @@ start:
 	lidt [IDT_DESC]
 	
 	; configurar controlador de interrupciones
-
+	call disable_pic
+	call reset_pic
+	call enable_pic
+	sti
 	; cargo la primer tarea null
 
 	; aca salto a la primer tarea

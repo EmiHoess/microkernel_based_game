@@ -81,6 +81,13 @@ exception_xm_msg_len equ	$ - exception_xm_msg
 exception_ve_msg db		'Virtualization'
 exception_ve_msg_len equ	$ - exception_ve_msg
 
+release_p_ve_msg db		'P Key'
+release_p_ve_msg_len equ	$ - release_p_ve_msg
+
+release_r_ve_msg db		'R Key'
+release_r_ve_msg_len equ	$ - release_r_ve_msg
+
+
 
 ;; PIC
 extern fin_intr_pic1
@@ -189,6 +196,88 @@ jmp $
 ISR 20
 print_exception exception_ve_msg, exception_ve_msg_len
 jmp $
+
+;;
+;; Rutina de atención del RELOJ
+;;
+
+ISR 32
+
+;;
+;; Rutina de atención del TECLADO
+;;
+
+ISR 33
+	cli
+	pushfd
+	call fin_intr_pic1
+	push eax
+	in al, 0x60 
+	cmp	al, 93
+	jne .pressing_r
+	//releasing p
+		imprimir_excepcion release_r_ve_msg, release_r_ve_msg_len
+	.pressing_r:
+	cmp al, 99 
+	jne .pressing_p
+		imprimir_excepcion release_p_ve_msg, release_p_ve_msg_len
+	.pressing_p:
+	pop eax
+	popfd
+	sti
+	iret
+;;
+;; Rutinas de atención de las SYSCALLS
+;;
+
+;;
+;; Rutina de atencion x80
+;;
+ISR 128
+pushfd
+call fin_intr_pic1
+
+cmp eax,111
+Je .duplicar_128
+	call obtener_id_jugador 	
+	push esi
+	push edx
+	push ecx
+	push ebx
+	push eax
+	call game_migrar
+	add esp,20 
+	jmp .salir_128
+
+		.duplicar_128:
+		call obtener_id_jugador 	
+		push ecx
+		push ebx
+		push eax
+		call game_duplicar 
+		add esp,8 			
+
+.salir_128:
+
+popfd 				
+iret 			
+
+ISR 144
+
+pushfd
+cmp eax, 200 
+jne .iniciarJuego
+	call game_terminar
+	jmp .fin
+		.iniciarJuego:
+		cmp eax, 300 
+		jne .fin
+	call game_iniciar
+.fin:
+popfd
+
+
+
 
 proximo_reloj:
 	pushad
