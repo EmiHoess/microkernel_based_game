@@ -8,6 +8,25 @@
 #include "mmu.h"
 #include "i386.h"
 
+
+void mmu_pagemap(unsigned int virtual,
+                       unsigned int fisica,
+                       pd_entry* page_directory,
+                       unsigned char user_supervisor,
+                       unsigned char read_write) {
+    
+    unsigned int directory = (virtual >> 22) & 0x3FF;
+    unsigned int table     = (virtual & 0x003FF000) >> 12;
+
+    pt_entry* page_table = (pt_entry*) (page_directory[directory].address << 12);
+
+    page_table[table].user_supervisor = user_supervisor;
+    page_table[table].address = fisica >> 12;
+    page_table[table].read_write = read_write;
+    page_table[table].present = 1;
+}
+
+
 void mmu_init_page_and_table_directory() {
 
 	pd_entry* page_directory = (pd_entry*) KERNEL_PAGE_DIR;
@@ -36,29 +55,7 @@ void mmu_init_page_and_table_directory() {
 	 		page_table[i].present = 1;
 	 	}
 	 }
-}
-
-void mmu_mappear_pagina(unsigned int virtual,
-                       unsigned int fisica,
-                       pd_entry* page_directory,
-                       unsigned char user_supervisor,
-                       unsigned char read_write) {
-    
-    // Dirección virtual: 
-    //
-    // | Directorio   | Table        | Offset         |
-    // | XXXX XXXX XX | XX XXXX XXXX | XXXX XXXX XXXX |
-    // | 31        22 | 21        12 | 11           0 |
-
-    unsigned int directory = (virtual >> 22) & 0x3FF;
-    unsigned int table     = (virtual & 0x003FF000) >> 12;
-
-    pt_entry* page_table = (pt_entry*) (page_directory[directory].address << 12);
-
-    page_table[table].user_supervisor = user_supervisor;
-    page_table[table].address = fisica >> 12;
-    page_table[table].read_write = read_write;
-    page_table[table].present = 1;
+   mmu_pagemap(TASK_CODE, 0x00010000, (pd_entry*)KERNEL_PAGE_DIR, 0, 1);
 }
 
 void mmu_inicializar_tarea_jugador
@@ -69,26 +66,22 @@ void mmu_inicializar_tarea_jugador
         unsigned int stack_address) {
     int i;
 
-    // Inicializo el directorio con todas las entradas vacías
     for (i = 0; i < 1024; i++) {
         *((unsigned int*) &page_directory[i]) = 0;
     }
 
-    // Asigno una única entrada en el directorio apuntando a la tabla
     page_directory[0].user_supervisor = 1;
     page_directory[0].address = ((unsigned int) page_table) >> 12;
     page_directory[0].read_write = 1;
     page_directory[0].present = 1;
 
-    // Inicializo la tabla con todas las entradas vacías
     for (i = 0; i < 1024; i++) {
         *((unsigned int*) &(page_table[i])) = 0;
     }
 
-    // Mappeo la memoria
-    mmu_mappear_pagina(TASK_CODE, code_address, page_directory, 1, 1);
-    mmu_mappear_pagina(TASK_STACK, stack_address, page_directory, 1, 1);
-    mmu_mappear_pagina(TABLERO_ADDR, TABLERO_ADDR_PA, page_directory, 1, 0);
+    mmu_pagemap(TASK_CODE, code_address, page_directory, 1, 1);
+    mmu_pagemap(TASK_STACK, stack_address, page_directory, 1, 1);
+    mmu_pagemap(TABLERO_ADDR, TABLERO_ADDR_PA, page_directory, 1, 0);
 }
 
 void mmu_inicializar_tarea_arbitro()
@@ -99,7 +92,7 @@ void mmu_inicializar_tarea_arbitro()
         TASK_5_CODE_PA,
         TASK_5_STACK_PA);
 
-    mmu_mappear_pagina(VIDEO_ADDR, VIDEO_ADDR, (pd_entry*) TASK_5_PAGE_DIR, 1, 1);
+    mmu_pagemap(VIDEO_ADDR, VIDEO_ADDR, (pd_entry*) TASK_5_PAGE_DIR, 1, 1);
 
 }
 
