@@ -16,3 +16,10 @@ tss tarea_dibujar;
 
 tss tsss[CANT_TAREAS];
 
+void init_tss() {
+
+	tarea_inicial.eip = 0;
+	tarea_inicial.cr3 = 0;
+	tarea_inicial.
+
+}

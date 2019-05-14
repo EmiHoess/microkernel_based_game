@@ -55,6 +55,6 @@ extern tss tarea_dibujar;
 
 extern tss tsss[];
 
-void tss_inicializar();
+void init_tss();
 
 #endif	/* !__TSS_H__ */

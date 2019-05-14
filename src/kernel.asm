@@ -23,6 +23,10 @@ extern enable_pic
 ;;MMU
 extern mmu_init_page_and_table_directory
 
+;;TSS
+extern init_gdt_tss
+extern init_tss
+
 ;; Saltear seccion de datos
 jmp start
 
@@ -103,9 +107,9 @@ protected_mode:
 	; inicializar tarea idle
 
 	; inicializar todas las tsss
-
+	call init_tss
 	; inicializar entradas de la gdt de tss
-
+	call init_gdt_tss
 	; inicializar el scheduler
 
 	; inicializar la IDT
@@ -118,9 +122,10 @@ protected_mode:
 	call enable_pic
 	sti
 	; cargo la primer tarea null
-
+	mov ax, 64 
+	ltr ax
 	; aca salto a la primer tarea
-
+	jmp 72:0
 	; Ciclar infinitamente (por si algo sale mal)
 	jmp $
 
