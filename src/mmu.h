@@ -36,6 +36,11 @@ typedef struct str_pt_entry {
     unsigned int  address:20;
 } __attribute__((__packed__, aligned (4))) pt_entry;
 
+pd_entry* tasks_directory[5];
+unsigned int ultimaDirfisica;
+unsigned short cantPaginas[5];
+
+char set_memory(unsigned int direccion);
 
 // inicializa el directorio de páginas del kernel
 void mmu_init_page_and_table_directory();

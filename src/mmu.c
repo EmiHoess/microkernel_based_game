@@ -26,6 +26,20 @@ void mmu_pagemap(unsigned int virtual,
     page_table[table].present = 1;
 }
 
+char set_memory(unsigned int direccion) 
+{
+    unsigned short tarea = tareaActiva()-10; 
+    if((direccion >= 0x003D0000) && (direccion < 0x003F0000) && (page_counter[tarea] <= 5)) 
+    {
+        page_counter[tarea]++;
+        mmu_pagemap(direccion, last_real_dir, (pd_entry*)tasks_directory[tarea], 0, 1);
+        last_real_dir += 4096; 
+        return 1;
+    }
+    else {
+        return 0;
+    }
+} 
 
 void mmu_init_page_and_table_directory() {
 
