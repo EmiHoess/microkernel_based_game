@@ -19,10 +19,11 @@
 
 BITS 32
 
-
+global jmp_to_task
 extern init_game
 extern end_game
 extern sched_next_index
+extern next_task
 
 %define TAREA_QUANTUM		2
 exception_msg db		'Exception:'
@@ -205,6 +206,18 @@ jmp $
 ISR 20
 print_exception exception_ve_msg, exception_ve_msg_len
 jmp $
+
+jmp_to_task:
+	push ebp
+	mov ebp, esp
+	pushad
+	xchg bx, bx
+	mov eax, [ebp+8]
+	mov [proximaTarea], ax
+    jmp far [offset]
+    popad
+   	pop ebp
+    ret
 
 ;;
 ;; Rutina de atención del RELOJ

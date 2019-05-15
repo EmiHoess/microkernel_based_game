@@ -12,7 +12,7 @@
 #include "gdt.h"
 #include "mmu.h"
 #include "i386.h"
-
+#include "isr.h"
 
 extern unsigned short tareas[CANT_TAREAS];
 extern unsigned short posArbitro = 112;
@@ -22,6 +22,6 @@ extern char arbitro = 0;
 void init_sched();
 unsigned short sched_proximo_indice();
 void sched_remover_tarea(unsigned int process_id);
-
+void next_task();
 
 #endif	/* !__SCHED_H__ */

@@ -8,6 +8,11 @@
 #include "screen.h"
 #include "sched.h"
 
+char		   restart	= 1;
+char		   pause			= 0;
+char 		   index			= 0;
+char		   quantum			= 2;
+char		   end		= 0;
 
 unsigned char clock[4] = {'|', '/', '-', '\\'};
 unsigned int clock_values[5] = {0,0,0,0,0};
@@ -23,6 +28,38 @@ void init_sched()
   tareas[1] = 88;
   tareas[2] = 96;
   tareas[3] = 104;
+}
+
+void next_task() 
+{
+	if(end == 1) return;
+	if (quantum > 0)
+	{
+		quantum--;
+		return;
+	}
+	if(quantum == 0) 
+	{
+		quantum = 2;
+		if(pause == 0 && restart == 0) 
+		{ 
+			pause 		= 1;
+			jmp_to_task(72); 	
+		} else if(restart == 1) 
+		{  
+			unsigned short proxTarea = sched_proximo_indice();
+			pause = 0;
+			breakpoint();
+			if(proxTarea != 0)
+			{
+				jmp_to_task(proxTarea); 
+			} else 
+			{
+				end = 1;
+				jmp_to_task(72); 	
+			} 
+		}
+	}
 }
 
 unsigned short sched_proximo_indice() {
@@ -47,7 +84,7 @@ unsigned short sched_proximo_indice() {
 
 		result 	= tareas[t_index];
 		arbitro = 1;
-		++t_index;
+		t_index += (t_index+1)%4;
 	} 
 
 	return result;
@@ -57,4 +94,5 @@ void sched_remover_tarea(unsigned int process_id)
 {
   tareas[process_id] = 0;
 }
+
 

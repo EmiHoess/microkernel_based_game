@@ -34,5 +34,6 @@ void _isr33();
 void _isr128();
 void _isr144();
 
+void jmp_to_task(); //thanks lauta
 
 #endif	/* !__ISR_H__ */
