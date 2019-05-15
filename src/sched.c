@@ -8,6 +8,10 @@
 #include "screen.h"
 #include "sched.h"
 
+
+unsigned char clock[4] = {'|', '/', '-', '\\'};
+unsigned int clock_values[5] = {0,0,0,0,0};
+
 unsigned short tareas[CANT_TAREAS];
 unsigned short arb_pos = 112;
 unsigned short t_index = 0;
@@ -53,3 +57,4 @@ void sched_remover_tarea(unsigned int process_id)
 {
   tareas[process_id] = 0;
 }
+
