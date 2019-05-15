@@ -15,7 +15,14 @@
 	imprimir_texto_mp %1, %2, 0x06, 1 ,0
 %endmacro
 
+
+
 BITS 32
+
+
+extern init_game
+extern end_game
+
 
 %define TAREA_QUANTUM		2
 exception_msg db		'Exception:'
@@ -87,7 +94,9 @@ release_p_ve_msg_len equ	$ - release_p_ve_msg
 release_r_ve_msg db		'R Key'
 release_r_ve_msg_len equ	$ - release_r_ve_msg
 
-
+pause_start: db 0
+pause_end: db 0 
+quantum: db TAREA_QUANTUM
 
 ;; PIC
 extern fin_intr_pic1
@@ -201,7 +210,45 @@ jmp $
 ;; Rutina de atención del RELOJ
 ;;
 
-ISR 32
+ISR 32:
+	cli
+	pushad
+	call fin_intr_pic1
+
+	cmp byte [quantum], 0
+	jne .finYDec32
+		mov byte [quantum], 2 
+		cmp byte [pausado], 0 
+		jne .noPausar32
+			cmp byte [pausar], 1 
+			jne .cambiarTarea32
+				mov byte [pausado], 1
+		;Salto a idle
+		jmp 72:00
+		jmp .fin32 
+
+	.noPausar32:
+		cmp [pausar], 0
+		jne .fin32
+		mov byte [pausado], 0
+		.cambiarTarea32:
+		;Pushear registros
+		call sched_proximo_indice
+		pop ax ;Consigo resultado
+		jmp ax:00
+		jmp .fin32
+
+	.finYDec32:
+		;Decremento el quantum
+		mov al, [quantum]
+		dec al
+		mov [quantum], al
+	.fin32:
+	call proximo_reloj 
+	pop eax
+	popfd 				
+	iret 				
+
 
 ;;
 ;; Rutina de atención del TECLADO
@@ -217,10 +264,14 @@ ISR 33
 	jne .pressing_r
 	//releasing p
 		imprimir_excepcion release_r_ve_msg, release_r_ve_msg_len
+		mov [pause_start], 0
+		jmp .fin33
 	.pressing_r:
 	cmp al, 99 
 	jne .pressing_p
 		imprimir_excepcion release_p_ve_msg, release_p_ve_msg_len
+		mov [pause_start], 1
+		.fin33:
 	.pressing_p:
 	pop eax
 	popfd
@@ -265,15 +316,15 @@ iret
 ISR 144
 
 pushfd
-cmp eax, 200 
-jne .iniciarJuego
-	call game_terminar
-	jmp .fin
-		.iniciarJuego:
-		cmp eax, 300 
-		jne .fin
-	call game_iniciar
-.fin:
+cmp eax, 200
+	jne .iniciarJuego
+		call end_game
+	jmp .fin144
+.iniciarJuego:
+cmp eax, 300 
+	jne .fin144
+call init_game
+.fin144:
 popfd
 
 
