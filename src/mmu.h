@@ -37,8 +37,8 @@ typedef struct str_pt_entry {
 } __attribute__((__packed__, aligned (4))) pt_entry;
 
 pd_entry* tasks_directory[5];
-unsigned int ultimaDirfisica;
-unsigned short cantPaginas[5];
+unsigned int last_real_dir;
+unsigned short page_counter[5];
 
 char set_memory(unsigned int direccion);
 

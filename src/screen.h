@@ -44,5 +44,31 @@
 
 void screen_pintar_pantalla();
 
+void draw_char(const char* str, unsigned char fil, unsigned char col, unsigned char attr);
+
+void draw_rect(unsigned char attr, unsigned char fil_src, unsigned char col_src,
+                              unsigned char fil_dst, unsigned char col_dst);
+
+// From *printf:
+//
+// %[flag][width][mod][conv]
+// flag:   -      left justify, pad right w/ blanks
+//         0      pad left w/ 0 for numerics
+// width:         (field width)
+// mod:    N      near ptr
+//         h      short (16-bit) int
+//         l      long (32-bit) int
+// conv:   d,i    decimal int
+//         u      decimal unsigned
+//         o      octal
+//         x,X    hex
+//         c      char
+//         s      string
+//         p      ptr
+
+void  printf(unsigned char fila, unsigned char columna, const char *fmt, ...);
+void aprintf(unsigned char fila, unsigned char columna, unsigned char attr, const char *fmt, ...);
+int  sprintf(char *buffer, const char *fmt, ...);
+
 
 #endif	/* !__SCREEN_H__ */
