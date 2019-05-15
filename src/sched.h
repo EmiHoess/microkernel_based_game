@@ -15,8 +15,11 @@
 
 
 extern unsigned short tareas[CANT_TAREAS];
+extern unsigned short posArbitro = 112;
+extern unsigned short posicion = 0;
+extern char arbitro = 0;
 
-void sched_inicializar();
+void init_sched();
 unsigned short sched_proximo_indice();
 void sched_remover_tarea(unsigned int process_id);
 

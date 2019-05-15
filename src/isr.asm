@@ -22,7 +22,7 @@ BITS 32
 
 extern init_game
 extern end_game
-
+extern sched_next_index
 
 %define TAREA_QUANTUM		2
 exception_msg db		'Exception:'
@@ -216,34 +216,32 @@ ISR 32:
 	call fin_intr_pic1
 
 	cmp byte [quantum], 0
-	jne .finYDec32
+	jne .finish
 		mov byte [quantum], 2 
-		cmp byte [pausado], 0 
-		jne .noPausar32
+		cmp byte [pause_end], 0 
+		jne .wait
 			cmp byte [pausar], 1 
 			jne .cambiarTarea32
-				mov byte [pausado], 1
+				mov byte [pause_end], 1
 		;Salto a idle
 		jmp 72:00
-		jmp .fin32 
+		jmp .end 
 
-	.noPausar32:
-		cmp [pausar], 0
+	.wait:
+		cmp [pause_start], 0
 		jne .fin32
-		mov byte [pausado], 0
-		.cambiarTarea32:
-		;Pushear registros
+		mov byte [pause_end], 0
+	.switch_task:
 		call sched_proximo_indice
-		pop ax ;Consigo resultado
+		pop ax 
 		jmp ax:00
-		jmp .fin32
+		jmp .end
 
-	.finYDec32:
-		;Decremento el quantum
+	.finish:
 		mov al, [quantum]
 		dec al
-		mov [quantum], al
-	.fin32:
+		mov byte[quantum], al
+	.end:
 	call proximo_reloj 
 	pop eax
 	popfd 				

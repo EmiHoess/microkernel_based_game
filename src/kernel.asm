@@ -19,6 +19,7 @@ extern idt_inicializar
 extern disable_pic
 extern reset_pic
 extern enable_pic
+extern init_sched
 
 ;;MMU
 extern mmu_init_page_and_table_directory
@@ -109,9 +110,19 @@ protected_mode:
 	; inicializar todas las tsss
 	call init_tss
 	; inicializar entradas de la gdt de tss
-	call init_gdt_tss
-	; inicializar el scheduler
+	mov eax, 0x00011000 
+	mov ebx, 0x00101000 
+	mov ecx, 5120 
+	.keep_copying:
+		mov esi, [eax]
+		mov [ebx], esi
+		inc eax
+		inc ebx
+		loop .keep_copying
 
+	call init_gdt_tss
+	; inicializar el scheduler	
+	call init_sched
 	; inicializar la IDT
 	call idt_inicializar
 	lidt [IDT_DESC]

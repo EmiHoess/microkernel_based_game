@@ -79,6 +79,13 @@ void mmu_inicializar_tarea_jugador
         *((unsigned int*) &(page_table[i])) = 0;
     }
 
+    for (i = 0; i < 0x164; i++) {
+        page_table[i].user_supervisor = 0;
+        page_table[i].address = i;
+        page_table[i].read_write = 1;
+        page_table[i].present = 1;
+    }
+
     mmu_pagemap(TASK_CODE, code_address, page_directory, 1, 1);
     mmu_pagemap(TASK_STACK, stack_address, page_directory, 1, 1);
     mmu_pagemap(TABLERO_ADDR, TABLERO_ADDR_PA, page_directory, 1, 0);
