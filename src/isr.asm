@@ -24,6 +24,9 @@ extern init_game
 extern end_game
 extern sched_next_index
 extern next_task
+extern current_task
+extern set_memory
+extern sched_remove_task
 
 %define TAREA_QUANTUM		2
 exception_msg db		'Exception:'
@@ -190,7 +193,7 @@ cmp ax, 0 ;Veo si el resultado es 0
 	call current_task 
 	sub ax, 10d 
 	push ax 
-	call sched_remover_tarea
+	call sched_remove_task
 	add esp, 4 
 .fin14:
 popfd
