@@ -180,8 +180,21 @@ print_exception exception_gp_msg, exception_gp_msg_len
 jmp $
 
 ISR 14
-print_exception exception_pf_msg, exception_pf_msg_len
-jmp $
+pushfd
+mov eax, cr2 
+push eax
+call set_memory
+add esp, 4 ;Ver si está bien
+cmp ax, 0 ;Veo si el resultado es 0
+	jne .fin14
+	call current_task 
+	sub ax, 10d 
+	push ax 
+	call sched_remover_tarea
+	add esp, 4 
+.fin14:
+popfd
+iret
 
 ISR 15
 ;print_exception exception_mr_msg, exception_mr_msg_len
