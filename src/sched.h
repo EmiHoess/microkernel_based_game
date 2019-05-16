@@ -21,7 +21,7 @@ extern char arbitro = 0;
 
 void init_sched();
 unsigned short sched_proximo_indice();
-void sched_remover_tarea(unsigned int process_id);
-void next_task();
-
+void sched_remove_task(unsigned int process_id);
+void game_tick();
+unsigned short current_task();
 #endif	/* !__SCHED_H__ */

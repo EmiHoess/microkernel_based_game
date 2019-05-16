@@ -39,8 +39,8 @@ int scores[CANT_JUGADORES];
 unsigned char (*tablero)[TABLERO_COLS] = (unsigned char (*)[TABLERO_COLS]) (TABLERO_ADDR);
 
 
-unsigned int game_iniciar();
-unsigned int game_terminar();
+unsigned int init_game();
+unsigned int end_game();
 unsigned int game_duplicar(int nro_jugador, int fil, int col);
 unsigned int game_migrar(int nro_jugador, int fil_src, int col_src, int fil_dst, int col_dst);
 

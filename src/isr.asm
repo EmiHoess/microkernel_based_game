@@ -23,7 +23,9 @@ global jmp_to_task
 extern init_game
 extern end_game
 extern sched_next_index
-extern next_task
+extern game_tick
+extern game_duplicar
+extern game_migrar
 extern current_task
 extern set_memory
 extern sched_remove_task
@@ -187,8 +189,8 @@ pushfd
 mov eax, cr2 
 push eax
 call set_memory
-add esp, 4 ;Ver si está bien
-cmp ax, 0 ;Veo si el resultado es 0
+add esp, 4 
+cmp ax, 0 
 	jne .fin14
 	call current_task 
 	sub ax, 10d 
@@ -240,41 +242,11 @@ jmp_to_task:
 ;;
 
 ISR 32:
-	cli
-	pushad
-	call fin_intr_pic1
-
-	cmp byte [quantum], 0
-	jne .finish
-		mov byte [quantum], 2 
-		cmp byte [pause_end], 0 
-		jne .wait
-			cmp byte [pausar], 1 
-			jne .cambiarTarea32
-				mov byte [pause_end], 1
-		;Salto a idle
-		jmp 72:00
-		jmp .end 
-
-	.wait:
-		cmp [pause_start], 0
-		jne .fin32
-		mov byte [pause_end], 0
-	.switch_task:
-		call sched_proximo_indice
-		pop ax 
-		jmp ax:00
-		jmp .end
-
-	.finish:
-		mov al, [quantum]
-		dec al
-		mov byte[quantum], al
-	.end:
-	call proximo_reloj 
-	pop eax
-	popfd 				
-	iret 				
+	pushfd 					
+	call fin_intr_pic1 	
+	call game_tick			
+	popfd 			
+	iret 			
 
 
 ;;
@@ -312,47 +284,57 @@ ISR 33
 ;; Rutina de atencion x80
 ;;
 ISR 128
-pushfd
-call fin_intr_pic1
+	pushfd 				
+	pushad
+	call fin_intr_pic1 	;
+	popad
+	xchg bx, bx
+	
+	
+	cmp eax, 111
+	je .duplicar_128
 
-cmp eax,111
-Je .duplicar_128
-	call obtener_id_jugador 	
-	push esi
-	push edx
-	push ecx
-	push ebx
-	push eax
-	call game_migrar
-	add esp,20 
+		cmp eax, 222
+		je .migrar_128
+
+			mov eax, 0
+			jmp .salir_128
+
+	.duplicar_128:
+	
+	push ecx 			
+	push ebx 			
+	call current_player 	
+	pop ecx
+	pop ebx
+					
+	push ecx 			
+	push ebx 			
+	push eax 			
+	call game_duplicar 
+	add esp, 12
+
 	jmp .salir_128
 
-		.duplicar_128:
-		call obtener_id_jugador 	
-		push ecx
-		push ebx
-		push eax
-		call game_duplicar 
-		add esp,8 			
+	.migrar_128:
+	push ecx 			
+	push ebx 			
+	call current_player 	
+	pop ecx
+	pop ebx
+	
+	push esi 			
+	push edx 			
+	push ecx 			
+	push ebx 			
+	push eax 			
+	call game_migrar
+	add esp, 20
 
-.salir_128:
+	.salir_128:
+	popfd 				
+	iret 				
 
-popfd 				
-iret 			
-
-ISR 144
-
-pushfd
-cmp eax, 200
-	jne .iniciarJuego
-		call end_game
-	jmp .fin144
-.iniciarJuego:
-cmp eax, 300 
-	jne .fin144
-call init_game
-.fin144:
-popfd
 
 
 

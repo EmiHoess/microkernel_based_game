@@ -30,7 +30,7 @@ void init_sched()
   tareas[3] = 104;
 }
 
-void next_task() 
+void game_tick() 
 {
 	if(end == 1) return;
 	if (quantum > 0)
@@ -62,6 +62,18 @@ void next_task()
 	}
 }
 
+unsigned short current_task()
+{
+	unsigned short ret_task = 0;
+	for(int i = 9; i < 15; i++)
+	{
+		unsigned short busy = gdt[i].type;
+		busy = busy & 0x0002; 
+		if(busy == 2) ret_task = i;
+	}
+	return ret_task;
+}
+
 unsigned short sched_proximo_indice() {
 	unsigned short 	result;
 	int 			cant = 0;
@@ -90,7 +102,7 @@ unsigned short sched_proximo_indice() {
 	return result;
 }
 
-void sched_remover_tarea(unsigned int process_id)
+void sched_remove_task(unsigned int process_id)
 {
   tareas[process_id] = 0;
 }

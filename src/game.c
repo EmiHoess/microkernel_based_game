@@ -18,7 +18,7 @@ unsigned int game_posicion_en_rango(int fil, int col);
 unsigned int game_celda_vacia(int fil, int col);
 void         game_infectar_adyacentes(int nro_jugador, int fil, int col);
 
-unsigned int game_iniciar() {
+unsigned int init_game() {
 	int f;
 	int c;
 
@@ -46,7 +46,7 @@ unsigned int game_iniciar() {
 	return TRUE;
 }
 
-unsigned int game_terminar() {
+unsigned int end_game() {
 	game_finalizado = TRUE;
 
 	return TRUE;
