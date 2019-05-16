@@ -12,8 +12,8 @@
 
 #define SYS_DUPLICAR	111
 #define SYS_MIGRAR		222
-#define SYS_INICIAR		200
-#define SYS_TERMINAR	300
+#define SYS_INICIAR		300
+#define SYS_TERMINAR	200
 
 /*
  * Syscalls anillo #3

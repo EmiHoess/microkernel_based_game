@@ -35,6 +35,9 @@
 #define JUG4_FIL_INIT 		(TABLERO_FILS-1)
 #define JUG4_COL_INIT 		0
 
+int scores[CANT_JUGADORES];
+unsigned char (*tablero)[TABLERO_COLS] = (unsigned char (*)[TABLERO_COLS]) (TABLERO_ADDR);
+
 
 unsigned int game_iniciar();
 unsigned int game_terminar();

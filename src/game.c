@@ -37,6 +37,11 @@ unsigned int game_iniciar() {
 
 	// Inicializar estado del juego
 	game_finalizado = FALSE;
+	//Scores 
+	scores[0] = 0;
+	scores[1] = 0;
+	scores[2] = 0;
+	scores[3] = 0;
 
 	return TRUE;
 }
