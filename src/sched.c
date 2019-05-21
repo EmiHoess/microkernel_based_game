@@ -62,14 +62,13 @@ void game_tick()
 	}
 }
 
-unsigned short current_task()
+unsigned short current_player()
 {
 	unsigned short ret_task = 0;
-	for(int i = 9; i < 15; i++)
-	{
-		unsigned short busy = gdt[i].type;
-		busy = busy & 0x0002; 
-		if(busy == 2) ret_task = i;
+	int i;
+	for(i = 10; i <= 13; i++) {
+		unsigned short busy = (gdt[i].type & 0x0002);
+		if(busy == 2) ret_task = i - 10;
 	}
 	return ret_task;
 }

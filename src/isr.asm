@@ -186,6 +186,7 @@ jmp $
 
 ISR 14
 pushfd
+pushad
 mov eax, cr2 
 push eax
 call set_memory
@@ -198,6 +199,7 @@ cmp ax, 0
 	call sched_remove_task
 	add esp, 4 
 .fin14:
+popad
 popfd
 iret
 
@@ -305,8 +307,9 @@ ISR 128
 	push ecx 			
 	push ebx 			
 	call current_player 	
-	pop ecx
 	pop ebx
+	pop ecx
+
 					
 	push ecx 			
 	push ebx 			

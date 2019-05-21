@@ -33,7 +33,8 @@ void screen_pintar(unsigned char formato, unsigned short desdeFil,
 
 void task() {
 	/* Task 5 : Tarea arbitro */
-
+	imprimir_tablero_inicial();
+	syscall_iniciar();
 	while(1) { }
 }
 
@@ -88,6 +89,11 @@ void print(const char* str, unsigned int fil, unsigned int col, unsigned short a
 	// Sugerencia: Implementar esta funcion que imprime en pantalla el string
 	// *str* en la posicion (fil, col) con los atributos attr y usarla para
 	// implementar todas las demas funciones que imprimen en pantalla.
-	screen_pintar(C_BG_LIGHT_GREY,0,15,40,VIDEO_COLS);
-	screen_pintar(C_BG_BROWN,15,VIDEO_FILS,0,VIDEO_COLS);
+	unsigned char* ptr_pantalla = (unsigned char*)VIDEO_ADDR;
+	for(int i =0; str[i] != '\0'; i+=2) 
+	{
+		ptr_pantalla[i + col*2+ fil*VIDEO_COL*2] = str[i];
+		ptr_pantalla[i + 1 + col*2+ fil*VIDEO_COL*2] = attr;
+		i+=2;
+	}
 }
