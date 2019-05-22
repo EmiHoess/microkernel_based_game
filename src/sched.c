@@ -87,6 +87,7 @@ void game_tick()
 			breakpoint();
 			if(proxTarea != 0)
 			{
+				
 				jmp_to_task(proxTarea); 
 			} else 
 			{
@@ -95,6 +96,7 @@ void game_tick()
 			} 
 		}
 	}
+	task_clock();
 }
 
 

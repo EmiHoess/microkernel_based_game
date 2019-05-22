@@ -94,9 +94,9 @@ void mmu_init_player_task
     }
 
     for (i = 0; i < 0x164; i++) {
-        page_table[i].user_supervisor = 0;
+        page_table[i].user_supervisor = 1;
         page_table[i].address = i;
-        page_table[i].read_write = 1;
+        page_table[i].read_write = 0;
         page_table[i].present = 1;
     }
 
@@ -105,7 +105,7 @@ void mmu_init_player_task
     mmu_pagemap(TABLERO_ADDR, TABLERO_ADDR_PA, page_directory, 1, 0);
 }
 
-void mmu_inicializar_tarea_arbitro()
+void mmu_init_referee_task()
 {
     mmu_init_player_task(
         (pd_entry*) TASK_5_PAGE_DIR,
@@ -145,6 +145,6 @@ void mmu_inicializar()
         TASK_4_STACK_PA);
 
     // Árbitro
-    mmu_inicializar_tarea_arbitro();
+    mmu_init_referee_task();
 }
 

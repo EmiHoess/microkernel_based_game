@@ -255,6 +255,8 @@ jmp_to_task:
 ;;
 ;; Rutina de atención del RELOJ
 ;;
+reloj_numero:		 	dd 0x00000000
+reloj:  				db '|/-\'
 
 ISR 32:
 	pushfd 					
@@ -269,7 +271,6 @@ ISR 32:
 		add ebx, reloj
 		imprimir_texto_mp ebx, 1, 0x0f, 24, 79 	
 	
-	call proximo_reloj
 	call task_clock
 	call game_tick	
 	popad
