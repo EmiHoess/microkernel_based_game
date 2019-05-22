@@ -22,6 +22,7 @@ unsigned short arb_pos = 112;
 unsigned short t_index = 0;
 char arbitro = 0;
 
+
 void init_sched() 
 {
   tareas[0] = 80;
@@ -29,6 +30,7 @@ void init_sched()
   tareas[2] = 96;
   tareas[3] = 104;
 }
+
 
 void game_tick() 
 {
@@ -62,48 +64,47 @@ void game_tick()
 	}
 }
 
+
 unsigned short current_player()
 {
 	unsigned short ret_task = 0;
 	int i;
-	for(i = 10; i <= 13; i++) {
+	for(i = 10; i <= 13; i++) 
+	{
 		unsigned short busy = (gdt[i].type & 0x0002);
-		if(busy == 2) ret_task = i - 10;
+		if(busy == 2) ret_task = i - 9;
 	}
 	return ret_task;
 }
 
+
 unsigned short sched_proximo_indice() {
 	unsigned short 	result;
-	int 			cant = 0;
+	unsigned short	cant 	= 0;
 
-	if (!arbitro)
-  {
+	if (arbitro == FALSE) 
+	{
 		result 	= arb_pos;
-		arbitro = 1;
-	}else
-  {
-		while (tareas[t_index] == 0 && cant < 4) 
-    {
-			++t_index;
-			++cant;
-		}
-		if(cant == 4) 
-    {
-			return arb_pos;
-		}
+		arbitro = TRUE;
+	} else 
+	{
+		printf(2, 50, "Pos 1: %d", posicion);
+		for (;tareas[t_index] == 0 && cant < 4;++posicion,++cant) {}
+		printf(3, 50, "Pos = %u, # = %u", posicion, cant);
 
+
+		if(cant == 4) return 0;
 		result 	= tareas[t_index];
-		arbitro = 1;
-		t_index += (t_index+1)%4;
+		arbitro = FALSE;
+		posicion = (posicion+1)%4;
 	} 
-
 	return result;
 }
 
 void sched_remove_task(unsigned int process_id)
 {
-  tareas[process_id] = 0;
+	tareas[process_id] = 0;
+	quantum = 0;
 }
 
 
