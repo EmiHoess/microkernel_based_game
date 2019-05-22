@@ -27,6 +27,7 @@ extern game_tick
 extern game_duplicar
 extern game_migrar
 extern current_task
+extern task_clock
 extern set_memory
 extern sched_remove_task
 extern spend_turn
@@ -147,9 +148,23 @@ reloj:  				db '|/-\'
 
 	call current_task 			
 
-	eliminar_tarea_actual eax
+	je .do_not_remove_current_task
+		dec ax		 				
+		push eax 					
+		call sched_remover_tarea
+		add esp, 4 
+	.do_not_remove_current_task:
 
- 	mensaje_tarea eax, intr_msg_%1
+	and eax, 0x000000FF
+	add eax, 19
+
+	pushad
+	push intr_msg_%1	
+	push 0x6F  
+	push 4 		
+	push eax	
+	call aprintf
+	add esp, 16
 
 	popad
 	popfd
@@ -158,23 +173,50 @@ reloj:  				db '|/-\'
 %endmacro
 
 ISR 14
+add esp, 4
 pushfd
 pushad
-mov eax, cr2 
-push eax
+call current_player 	
+mov ecx, eax 
+push ecx
+mov ebx, cr2				; CR2
+push ebx
 call set_memory
-add esp, 4 
-cmp ax, 0 
-	jne .fin14
-	call current_task 
-	sub ax, 10d 
-	push ax 
-	call sched_remove_task
-	add esp, 4 
+add esp, 4
+pop ecx
+cmp eax, 1
+mov eax, ecx 
+jne .elminar14
+.elminar14:
+
+	cmp ax, 5
+	je .do_not_remove_current_task
+		dec ax		 				
+		push eax 					
+		call sched_remover_tarea
+		add esp, 4 
+	.do_not_remove_current_task:
+
+	and eax, 0x000000FF
+	add eax, 19
+
+	pushad
+	mov ebx, cr2				
+	push ebx
+	push intr_msg_14
+	push 0x6F
+	push 4 	
+	push eax
+	call aprintf
+	add esp, 20
+	popad
+
+	call spend_turn
+
 .fin14:
-popad
-popfd
-iret
+	popad
+	popfd
+	iret
 
 JUST_SPEND_TURN  0, '#DE Divide Error'
 JUST_SPEND_TURN  1, '#DB RESERVED'
@@ -216,11 +258,23 @@ jmp_to_task:
 
 ISR 32:
 	pushfd 					
-	call fin_intr_pic1 	
-	call game_tick			
-	popfd 			
-	iret 			
-
+	pushad
+	inc DWORD [reloj_numero]
+	mov ebx, [reloj_numero]
+	cmp ebx, 0x4
+	jl .ok
+		mov DWORD [reloj_numero], 0x0
+		mov ebx, 0
+	.ok:
+		add ebx, reloj
+		imprimir_texto_mp ebx, 1, 0x0f, 24, 79 	
+	
+	call proximo_reloj
+	call task_clock
+	call game_tick	
+	popad
+	popfd 		
+	iret 		
 
 ;;
 ;; Rutina de atención del TECLADO

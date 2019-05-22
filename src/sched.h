@@ -24,4 +24,7 @@ unsigned short sched_proximo_indice();
 void sched_remove_task(unsigned int process_id);
 void game_tick();
 unsigned short current_player();
+void spend_turn();
+void task_clock();
+
 #endif	/* !__SCHED_H__ */
