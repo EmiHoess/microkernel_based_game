@@ -306,6 +306,12 @@ ISR 128
 	add esp, 20
 
 	.salir_128:
+	cmp eax, 0
+		je .fin_128
+		pushad
+		call spend_turn
+		popad
+	.fin_128:
 	popfd 				
 	iret 				
 
