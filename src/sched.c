@@ -107,4 +107,8 @@ void sched_remove_task(unsigned int process_id)
 	quantum = 0;
 }
 
+void spend_turn() {
+	quantum = 0;
+	game_tick();
+}
 

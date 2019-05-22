@@ -28,7 +28,7 @@ void mmu_pagemap(unsigned int virtual,
 
 char set_memory(unsigned int direccion) 
 {
-    unsigned short tarea = tareaActiva()-10; 
+    unsigned short tarea = current_player()-10; 
     if((direccion >= 0x003D0000) && (direccion < 0x003F0000) && (page_counter[tarea] <= 5)) 
     {
         page_counter[tarea]++;
@@ -72,7 +72,7 @@ void mmu_init_page_and_table_directory() {
    mmu_pagemap(TASK_CODE, 0x00010000, (pd_entry*)KERNEL_PAGE_DIR, 0, 1);
 }
 
-void mmu_inicializar_tarea_jugador
+void mmu_init_player_task
 (
         pd_entry* page_directory,
         pt_entry* page_table,
@@ -107,7 +107,7 @@ void mmu_inicializar_tarea_jugador
 
 void mmu_inicializar_tarea_arbitro()
 {
-    mmu_inicializar_tarea_jugador(
+    mmu_init_player_task(
         (pd_entry*) TASK_5_PAGE_DIR,
         (pt_entry*) TASK_5_PAGE_TABLE,
         TASK_5_CODE_PA,
@@ -120,29 +120,25 @@ void mmu_inicializar_tarea_arbitro()
 
 void mmu_inicializar() 
 {
-    // Jugador 1
-    mmu_inicializar_tarea_jugador(
+    mmu_init_player_task(
         (pd_entry*) TASK_1_PAGE_DIR,
         (pt_entry*) TASK_1_PAGE_TABLE,
         TASK_1_CODE_PA,
         TASK_1_STACK_PA);
 
-    // Jugador 2
-    mmu_inicializar_tarea_jugador(
+    mmu_init_player_task(
         (pd_entry*) TASK_2_PAGE_DIR,
         (pt_entry*) TASK_2_PAGE_TABLE,
         TASK_2_CODE_PA,
         TASK_2_STACK_PA);
 
-    // Jugador 3
-    mmu_inicializar_tarea_jugador(
+    mmu_init_player_task(
         (pd_entry*) TASK_3_PAGE_DIR,
         (pt_entry*) TASK_3_PAGE_TABLE,
         TASK_3_CODE_PA,
         TASK_3_STACK_PA);
 
-    // Jugador 4
-    mmu_inicializar_tarea_jugador(
+    mmu_init_player_task(
         (pd_entry*) TASK_4_PAGE_DIR,
         (pt_entry*) TASK_4_PAGE_TABLE,
         TASK_4_CODE_PA,

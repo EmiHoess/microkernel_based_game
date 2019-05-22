@@ -29,6 +29,7 @@ extern game_migrar
 extern current_task
 extern set_memory
 extern sched_remove_task
+extern spend_turn
 
 %define TAREA_QUANTUM		2
 exception_msg db		'Exception:'
@@ -124,65 +125,37 @@ _isr%1:
 reloj_numero:		 	dd 0x00000000
 reloj:  				db '|/-\'
 
+
+
+
+
 ;;
 ;; Rutina de atención de las exceptionES
 ;;
 
-ISR 0
-print_exception exception_division_msg, exception_division_msg_len
-jmp $
+%macro JUST_SPEND_TURN 2
+	global _isr%1
 
-ISR 1
-print_exception exception_debug_msg, exception_debug_msg_len
-jmp $
+	%defstr intr_num_%1 %1
+	intr_msg_%1     db  %2, ' (', intr_num_%1, ')', 0
+	intr_msg_len_%1 equ $ - intr_msg_%1
 
-ISR 2
-print_exception exception_nmi_msg, exception_nmi_msg_len
-jmp $
+	_isr%1:
 
-ISR 3
-print_exception exception_bp_msg, exception_bp_msg_len
-jmp $
+	pushfd
+	pushad
 
-ISR 4
-print_exception exception_of_msg, exception_of_msg_len
-jmp $
+	call current_task 			
 
-ISR 5
-print_exception exception_br_msg, exception_br_msg_len
-jmp $
+	eliminar_tarea_actual eax
 
-ISR 6
-print_exception exception_ud_msg, exception_ud_msg_len
-jmp $
+ 	mensaje_tarea eax, intr_msg_%1
 
-ISR 7
-print_exception exception_nm_msg, exception_nm_msg_len
-jmp $
+	popad
+	popfd
 
-ISR 8
-print_exception exception_df_msg, exception_df_msg_len
-jmp $
-
-ISR 9
-print_exception exception_cpso_msg, exception_cpso_msg_len
-jmp $
-
-ISR 10
-print_exception exception_ts_msg, exception_ts_msg_len
-jmp $
-
-ISR 11
-print_exception exception_np_msg, exception_np_msg_len
-jmp $
-
-ISR 12
-print_exception exception_ss_msg, exception_ss_msg_len
-jmp $
-
-ISR 13
-print_exception exception_gp_msg, exception_gp_msg_len
-jmp $
+	call spend_turn
+%endmacro
 
 ISR 14
 pushfd
@@ -203,29 +176,27 @@ popad
 popfd
 iret
 
-ISR 15
-;print_exception exception_mr_msg, exception_mr_msg_len
-jmp $
+JUST_SPEND_TURN  0, '#DE Divide Error'
+JUST_SPEND_TURN  1, '#DB RESERVED'
+JUST_SPEND_TURN  2, 'NMI Interrupt'
+JUST_SPEND_TURN  3, '#BP Breakpoint'
+JUST_SPEND_TURN  4, '#OF Overflow'
+JUST_SPEND_TURN  5, '#BR BOUND Range Exceeded'
+JUST_SPEND_TURN  6, '#UD Invalid Opcode (Undefined Opcode)'
+JUST_SPEND_TURN  7, '#NM Device Not Available (No Math Coprocessor)'
+JUST_SPEND_TURN  8, '#DF Double Fault'
+JUST_SPEND_TURN  9, 'Coprocessor Segment Overrun (reserved)'
+JUST_SPEND_TURN 10, '#TS Invalid TSS'
+JUST_SPEND_TURN 11, '#NP Segment Not Present'
+JUST_SPEND_TURN 12, '#SS Stack-Segment Fault'
+JUST_SPEND_TURN 13, '#GP General Protection'
+JUST_SPEND_TURN 15, '(Intel reserved. Do not use.)'
+JUST_SPEND_TURN 16, '#MF x87 FPU Floating-Point Error (Math Fault)'
+JUST_SPEND_TURN 17, '#AC Alignment Check'
+JUST_SPEND_TURN 18, '#MC Machine Check'
+JUST_SPEND_TURN 19, '#XM SIMD Floating-Point Exception'
+JUST_SPEND_TURN 20, '#VE Virtualization Exception'
 
-ISR 16
-print_exception exception_mf_msg, exception_mf_msg_len
-jmp $
-
-ISR 17
-print_exception exception_ac_msg, exception_ac_msg_len
-jmp $
-
-ISR 18
-print_exception exception_mc_msg, exception_mc_msg_len
-jmp $
-
-ISR 19
-print_exception exception_xm_msg, exception_xm_msg_len
-jmp $
-
-ISR 20
-print_exception exception_ve_msg, exception_ve_msg_len
-jmp $
 
 jmp_to_task:
 	push ebp
